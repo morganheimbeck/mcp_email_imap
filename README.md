@@ -1,4 +1,4 @@
-# mcp-email
+# mcp_email_imap
 
 Universal IMAP/SMTP MCP server. Works with Gmail, Outlook, AWS WorkMail, Fastmail, and any standard IMAP/SMTP provider.
 

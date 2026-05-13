@@ -6,7 +6,12 @@
   "organizeImports": { "enabled": true },
   "linter": {
     "enabled": true,
-    "rules": { "recommended": true }
+    "rules": {
+      "recommended": true,
+      "performance": {
+        "noDelete": "off"
+      }
+    }
   },
   "formatter": {
     "enabled": true,

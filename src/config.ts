@@ -7,10 +7,10 @@ const envSchema = z.object({
   EMAIL_PORT: portSchema,
   EMAIL_USER: z.string().email("EMAIL_USER must be a valid email"),
   EMAIL_PASS: z.string().min(1, "EMAIL_PASS is required"),
-  SMTP_HOST: z.string().min(1, "SMTP_HOST is required"),
-  SMTP_PORT: portSchema,
-  SMTP_USER: z.string().email("SMTP_USER must be a valid email"),
-  SMTP_PASS: z.string().min(1, "SMTP_PASS is required"),
+  SMTP_HOST: z.string().min(1).optional(),
+  SMTP_PORT: portSchema.optional(),
+  SMTP_USER: z.string().email().optional(),
+  SMTP_PASS: z.string().min(1).optional(),
 });
 
 export interface Config {
@@ -32,6 +32,11 @@ export function loadConfig(): Config {
       user: env.EMAIL_USER,
       pass: env.EMAIL_PASS,
     },
-    smtp: { host: env.SMTP_HOST, port: env.SMTP_PORT, user: env.SMTP_USER, pass: env.SMTP_PASS },
+    smtp: {
+      host: env.SMTP_HOST ?? env.EMAIL_HOST,
+      port: env.SMTP_PORT ?? env.EMAIL_PORT,
+      user: env.SMTP_USER ?? env.EMAIL_USER,
+      pass: env.SMTP_PASS ?? env.EMAIL_PASS,
+    },
   };
 }

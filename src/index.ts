@@ -43,13 +43,14 @@ server.tool(
 
 server.tool(
   "search_emails",
-  "Primary entrypoint for finding email — use after get_folders. Use this whenever the user wants to find messages — by sender, subject, date range, or any combination. Results are returned newest-first. Supply at least one criterion (from, subject, since, before). Use since/before with ISO dates (e.g. 2026-01-01). Use a folder path from get_folders — never hardcode folder names. Returns uid, from, subject, date, seen (boolean — false means unread, true means read), and folder. To find unread emails, call this tool and filter results where seen === false — do NOT use list_emails for this. Present results with matched criteria highlighted; mark unread messages visually (e.g. bold subject). When the user says 'do I have new mail', 'any unread emails', 'any emails from X', or 'what came in this week', use this tool — not list_emails.",
+  "Primary entrypoint for finding email — use after get_folders. Use this whenever the user wants to find messages — by sender, subject, date range, read status, or any combination. Results are returned newest-first. Supply at least one criterion (from, subject, since, before, seen). Use since/before with ISO dates (e.g. 2026-01-01). Pass seen: false to find unread emails; seen: true for read emails; omit seen to return all. Use a folder path from get_folders — never hardcode folder names. Returns uid, from, subject, date, seen (boolean — false means unread, true means read), and folder. Present results with matched criteria highlighted; mark unread messages visually (e.g. bold subject). When the user says 'do I have new mail', 'any unread emails', 'any emails from X', or 'what came in this week', use this tool — not list_emails.",
   {
-    folder: z.string().optional().describe("Mailbox folder (default: INBOX)"),
+    folder: z.string().optional().describe("Mailbox folder path from get_folders (default: INBOX)"),
     from: z.string().optional().describe("Filter by sender address"),
     subject: z.string().optional().describe("Filter by subject (substring)"),
     since: z.string().optional().describe("ISO date — messages on or after this date"),
     before: z.string().optional().describe("ISO date — messages before this date"),
+    seen: z.boolean().optional().describe("Filter by read status: false = unread, true = read, omit = all"),
     limit: z.number().int().min(1).max(100).optional().describe("Max results (default: 20)"),
   },
   async (input) => {

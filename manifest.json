@@ -10,7 +10,7 @@
     },
     {
       "name": "search_emails",
-      "description": "Primary entrypoint for finding email — use after get_folders. Use this whenever the user wants to find messages — by sender, subject, date range, or any combination. Results are returned newest-first. Supply at least one criterion (from, subject, since, before). Use since/before with ISO dates (e.g. 2026-01-01). Use a folder path from get_folders — never hardcode folder names. Returns uid, from, subject, date, seen (boolean — false means unread, true means read), and folder. To find unread emails, call this tool and filter results where seen === false — do NOT use list_emails for this. Present results with matched criteria highlighted; mark unread messages visually (e.g. bold subject). When the user says 'do I have new mail', 'any unread emails', 'any emails from X', or 'what came in this week', use this tool — not list_emails."
+      "description": "Primary entrypoint for finding email — use after get_folders. Use this whenever the user wants to find messages — by sender, subject, date range, read status, or any combination. Results are returned newest-first. Supply at least one criterion (from, subject, since, before, seen). Use since/before with ISO dates (e.g. 2026-01-01). Pass seen: false to find unread emails; seen: true for read emails; omit seen to return all. Use a folder path from get_folders — never hardcode folder names. Returns uid, from, subject, date, seen (boolean — false means unread, true means read), and folder. Present results with matched criteria highlighted; mark unread messages visually (e.g. bold subject). When the user says 'do I have new mail', 'any unread emails', 'any emails from X', or 'what came in this week', use this tool — not list_emails."
     },
     {
       "name": "list_emails",
@@ -46,9 +46,25 @@
     { "name": "EMAIL_PORT", "description": "IMAP port (typically 993)", "required": true },
     { "name": "EMAIL_USER", "description": "IMAP username / email address", "required": true },
     { "name": "EMAIL_PASS", "description": "IMAP password or app password", "required": true },
-    { "name": "SMTP_HOST", "description": "SMTP server hostname (defaults to EMAIL_HOST)", "required": false },
-    { "name": "SMTP_PORT", "description": "SMTP port (typically 465 or 587, defaults to EMAIL_PORT)", "required": false },
-    { "name": "SMTP_USER", "description": "SMTP username (defaults to EMAIL_USER)", "required": false },
-    { "name": "SMTP_PASS", "description": "SMTP password (defaults to EMAIL_PASS)", "required": false }
+    {
+      "name": "SMTP_HOST",
+      "description": "SMTP server hostname (defaults to EMAIL_HOST)",
+      "required": false
+    },
+    {
+      "name": "SMTP_PORT",
+      "description": "SMTP port (typically 465 or 587, defaults to EMAIL_PORT)",
+      "required": false
+    },
+    {
+      "name": "SMTP_USER",
+      "description": "SMTP username (defaults to EMAIL_USER)",
+      "required": false
+    },
+    {
+      "name": "SMTP_PASS",
+      "description": "SMTP password (defaults to EMAIL_PASS)",
+      "required": false
+    }
   ]
 }

@@ -101,7 +101,7 @@ export class ImapClient {
 
   async searchEmails(
     folder: string,
-    criteria: { from?: string; subject?: string; since?: Date; before?: Date },
+    criteria: { from?: string; subject?: string; since?: Date; before?: Date; seen?: boolean },
     limit: number,
   ): Promise<EmailSummary[]> {
     await this.connect();
@@ -112,6 +112,8 @@ export class ImapClient {
       if (criteria.subject) query.subject = criteria.subject;
       if (criteria.since) query.since = criteria.since;
       if (criteria.before) query.before = criteria.before;
+      if (criteria.seen === true) query.seen = true;
+      if (criteria.seen === false) query.unseen = true;
 
       const searchResult = await this.client.search(query, { uid: true });
       const uids = Array.isArray(searchResult) ? searchResult : [];

@@ -14,6 +14,7 @@ export interface SearchEmailsInput {
   subject?: string;
   since?: string;
   before?: string;
+  seen?: boolean;
   limit?: number;
 }
 
@@ -43,6 +44,7 @@ export async function handleSearchEmails(
   if (input.subject) criteria.subject = input.subject;
   if (input.since) criteria.since = new Date(input.since);
   if (input.before) criteria.before = new Date(input.before);
+  if (input.seen !== undefined) criteria.seen = input.seen;
   return imap.searchEmails(input.folder ?? "INBOX", criteria, input.limit ?? 20);
 }
 

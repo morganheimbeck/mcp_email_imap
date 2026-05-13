@@ -1,4 +1,4 @@
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
@@ -18,7 +18,7 @@ const config = loadConfig();
 const imap = new ImapClient(config.imap);
 const smtp = new SmtpClient(config.smtp);
 
-const server = new Server({ name: "mcp-email", version: "0.1.0" }, { capabilities: { tools: {} } });
+const server = new McpServer({ name: "mcp-email", version: "0.1.0" });
 
 server.tool(
   "list_emails",

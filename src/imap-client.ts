@@ -53,11 +53,11 @@ export class ImapClient {
       )) {
         messages.push({
           uid: String(msg.uid),
-          messageId: msg.envelope.messageId ?? "",
-          from: msg.envelope.from?.[0]?.address ?? "",
-          subject: msg.envelope.subject ?? "(no subject)",
-          date: msg.envelope.date?.toISOString() ?? new Date(0).toISOString(),
-          seen: msg.flags.has("\\Seen"),
+          messageId: msg.envelope?.messageId ?? "",
+          from: msg.envelope?.from?.[0]?.address ?? "",
+          subject: msg.envelope?.subject ?? "(no subject)",
+          date: msg.envelope?.date?.toISOString() ?? new Date(0).toISOString(),
+          seen: msg.flags?.has("\\Seen") ?? false,
           folder,
         });
         if (messages.length >= limit) break;
@@ -82,7 +82,8 @@ export class ImapClient {
       if (criteria.since) query.since = criteria.since;
       if (criteria.before) query.before = criteria.before;
 
-      const uids = await this.client.search(query, { uid: true });
+      const searchResult = await this.client.search(query, { uid: true });
+      const uids = Array.isArray(searchResult) ? searchResult : [];
       const fetchUids = uids.slice(-limit);
       const messages: EmailSummary[] = [];
       for await (const msg of this.client.fetch(
@@ -92,11 +93,11 @@ export class ImapClient {
       )) {
         messages.push({
           uid: String(msg.uid),
-          messageId: msg.envelope.messageId ?? "",
-          from: msg.envelope.from?.[0]?.address ?? "",
-          subject: msg.envelope.subject ?? "(no subject)",
-          date: msg.envelope.date?.toISOString() ?? new Date(0).toISOString(),
-          seen: msg.flags.has("\\Seen"),
+          messageId: msg.envelope?.messageId ?? "",
+          from: msg.envelope?.from?.[0]?.address ?? "",
+          subject: msg.envelope?.subject ?? "(no subject)",
+          date: msg.envelope?.date?.toISOString() ?? new Date(0).toISOString(),
+          seen: msg.flags?.has("\\Seen") ?? false,
           folder,
         });
       }
@@ -127,13 +128,13 @@ export class ImapClient {
         }
         found = {
           uid: String(msg.uid),
-          messageId: msg.envelope.messageId ?? "",
-          from: msg.envelope.from?.[0]?.address ?? "",
-          to: (msg.envelope.to ?? []).map((a) => a.address ?? ""),
-          cc: (msg.envelope.cc ?? []).map((a) => a.address ?? ""),
-          subject: msg.envelope.subject ?? "(no subject)",
-          date: msg.envelope.date?.toISOString() ?? new Date(0).toISOString(),
-          seen: msg.flags.has("\\Seen"),
+          messageId: msg.envelope?.messageId ?? "",
+          from: msg.envelope?.from?.[0]?.address ?? "",
+          to: (msg.envelope?.to ?? []).map((a) => a.address ?? ""),
+          cc: (msg.envelope?.cc ?? []).map((a) => a.address ?? ""),
+          subject: msg.envelope?.subject ?? "(no subject)",
+          date: msg.envelope?.date?.toISOString() ?? new Date(0).toISOString(),
+          seen: msg.flags?.has("\\Seen") ?? false,
           folder,
           textBody: bodyParts.join("\r\n\r\n"),
           htmlBody: "",

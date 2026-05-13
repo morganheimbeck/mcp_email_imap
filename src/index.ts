@@ -43,7 +43,7 @@ server.tool(
 
 server.tool(
   "search_emails",
-  "Search emails by sender, subject, or date range",
+  "Primary entrypoint for finding email — use after get_folders. Use this whenever the user wants to find messages — by sender, subject, date range, or any combination. Results are returned newest-first. Supply at least one criterion (from, subject, since, before). Use since/before with ISO dates (e.g. 2026-01-01). Use a folder path from get_folders — never hardcode folder names. Returns uid, from, subject, date, seen (boolean — false means unread, true means read), and folder. To find unread emails, call this tool and filter results where seen === false — do NOT use list_emails for this. Present results with matched criteria highlighted; mark unread messages visually (e.g. bold subject). When the user says 'do I have new mail', 'any unread emails', 'any emails from X', or 'what came in this week', use this tool — not list_emails.",
   {
     folder: z.string().optional().describe("Mailbox folder (default: INBOX)"),
     from: z.string().optional().describe("Filter by sender address"),
@@ -60,7 +60,7 @@ server.tool(
 
 server.tool(
   "read_email",
-  "Get full body and headers of a specific message by UID",
+  "Use to fetch the full content of a single message by uid (obtained from list_emails or search_emails). Returns full headers, plain-text body, HTML body, to, cc, and all envelope fields. Present the body as the main content with from/to/subject/date as a header block above it. If the user asks to reply or forward, use the returned headers to pre-fill create_draft.",
   {
     folder: z.string().optional().describe("Mailbox folder (default: INBOX)"),
     uid: z.string().describe("Message UID"),
@@ -71,14 +71,14 @@ server.tool(
   },
 );
 
-server.tool("get_folders", "List all mailbox folders and labels", {}, async () => {
+server.tool("get_folders", "Call this first before any other tool. Folder paths vary by provider and must not be guessed — INBOX, [Gmail]/All Mail, Deleted Items, and custom labels all differ per account. Returns path (the exact value to pass to all other tools), name (display label), and IMAP flags. Present as a simple grouped list if the user asked for it; otherwise use silently to resolve folder paths before calling search_emails, list_emails, or move_email.", {}, async () => {
   const folders = await handleGetFolders(imap);
   return { content: [{ type: "text", text: JSON.stringify(folders, null, 2) }] };
 });
 
 server.tool(
   "create_draft",
-  "Compose a draft email — does NOT send",
+  "Use to compose an email without sending it. Always use this when the user asks to write, compose, or reply to a message — present the draft for review before sending. Returns the composed draft fields. Does NOT send. Show the draft to the user (to, subject, body) and ask if they want to send it before calling send_email.",
   {
     to: z.array(z.string().email()).describe("Recipient addresses"),
     cc: z.array(z.string().email()).optional().describe("CC addresses"),
@@ -95,7 +95,7 @@ server.tool(
 
 server.tool(
   "send_email",
-  "Send an email. Requires confirmed: true to prevent accidental sends.",
+  "Use only after the user has explicitly confirmed they want to send. Requires confirmed: true — omitting it throws an error. Never call this without showing the user the draft first and receiving clear send confirmation. Log the sent to/subject back to the user as confirmation.",
   {
     to: z.array(z.string().email()).describe("Recipient addresses"),
     cc: z.array(z.string().email()).optional().describe("CC addresses"),
@@ -113,7 +113,7 @@ server.tool(
 
 server.tool(
   "move_email",
-  "Move a message to another folder (use Trash path to delete safely)",
+  "Use to organise or safely delete messages. To delete, move to the provider Trash folder (e.g. Trash, [Gmail]/Trash, Deleted Items). Call get_folders first if the destination path is uncertain. Requires uid from a prior list or search call and the source folder. Confirm the move to the user.",
   {
     folder: z.string().describe("Source folder"),
     uid: z.string().describe("Message UID"),
@@ -127,7 +127,7 @@ server.tool(
 
 server.tool(
   "mark_read",
-  "Mark one or more messages as read",
+  "Use to mark one or more messages as read. Pass all UIDs in a single call when marking multiple messages. Confirm success to the user with the count of messages marked.",
   {
     folder: z.string().describe("Mailbox folder"),
     uids: z.array(z.string()).describe("Message UIDs to mark as read"),
@@ -140,7 +140,7 @@ server.tool(
 
 server.tool(
   "mark_unread",
-  "Mark one or more messages as unread",
+  "Use to mark one or more messages as unread (e.g. to flag for follow-up). Pass all UIDs in a single call. Confirm success to the user with the count of messages marked.",
   {
     folder: z.string().describe("Mailbox folder"),
     uids: z.array(z.string()).describe("Message UIDs to mark as unread"),

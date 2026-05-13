@@ -62,6 +62,7 @@ export class ImapClient {
         const range = `${start}:${end}`;
         end = start - 1;
 
+        const batch: EmailSummary[] = [];
         for await (const msg of this.client.fetch(
           range,
           { uid: true, envelope: true, flags: true },
@@ -70,7 +71,7 @@ export class ImapClient {
           if (filter === "unread" && seen) continue;
           if (filter === "read" && !seen) continue;
 
-          results.push({
+          batch.push({
             uid: String(msg.uid),
             messageId: msg.envelope?.messageId ?? "",
             from: msg.envelope?.from?.[0]?.address ?? "",
@@ -79,14 +80,16 @@ export class ImapClient {
             seen,
             folder,
           });
+        }
 
+        // Batch was fetched oldest-first; reverse to newest-first before appending.
+        batch.reverse();
+        for (const item of batch) {
+          results.push(item);
           if (results.length >= limit) break;
         }
       }
 
-      // fetch walks start→end (ascending sequence), so results are oldest-first within each batch.
-      // Reverse to get newest-first overall, then re-reverse if caller wants oldest.
-      results.reverse();
       if (order === "oldest") results.reverse();
 
       return results;

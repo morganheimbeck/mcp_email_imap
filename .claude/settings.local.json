@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__MCP_DOCKER__obsidian_simple_search",
+      "mcp__MCP_DOCKER__obsidian_get_file_contents",
+      "mcp__claude_ai_Context7__resolve-library-id",
+      "Bash(npm test *)",
+      "Bash(npm run lint *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ]
+  }
+}

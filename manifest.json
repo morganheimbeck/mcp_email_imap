@@ -1,0 +1,27 @@
+{
+  "name": "mcp-email",
+  "description": "Universal IMAP/SMTP MCP server — read, search, compose, and organise email from any provider",
+  "image": "xitstrategies/mcp-email:latest",
+  "categories": ["communication", "email"],
+  "tools": [
+    { "name": "list_emails", "description": "List recent or unread emails" },
+    { "name": "search_emails", "description": "Search emails by sender, subject, date" },
+    { "name": "read_email", "description": "Read full body and headers of a message" },
+    { "name": "get_folders", "description": "List all mailbox folders" },
+    { "name": "create_draft", "description": "Compose a draft (never auto-sends)" },
+    { "name": "send_email", "description": "Send email (requires confirmed: true)" },
+    { "name": "move_email", "description": "Move a message to another folder" },
+    { "name": "mark_read", "description": "Mark messages as read" },
+    { "name": "mark_unread", "description": "Mark messages as unread" }
+  ],
+  "env": [
+    { "name": "EMAIL_HOST", "description": "IMAP server hostname", "required": true },
+    { "name": "EMAIL_PORT", "description": "IMAP port (typically 993)", "required": true },
+    { "name": "EMAIL_USER", "description": "IMAP username / email address", "required": true },
+    { "name": "EMAIL_PASS", "description": "IMAP password or app password", "required": true },
+    { "name": "SMTP_HOST", "description": "SMTP server hostname", "required": true },
+    { "name": "SMTP_PORT", "description": "SMTP port (typically 465 or 587)", "required": true },
+    { "name": "SMTP_USER", "description": "SMTP username / email address", "required": true },
+    { "name": "SMTP_PASS", "description": "SMTP password or app password", "required": true }
+  ]
+}

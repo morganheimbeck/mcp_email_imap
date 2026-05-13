@@ -50,7 +50,7 @@ export class ImapClient {
     await this.connect();
     const lock: MailboxLockObject = await this.client.getMailboxLock(folder);
     try {
-      const total: number = this.client.mailbox?.exists ?? 0;
+      const total: number = this.client.mailbox ? this.client.mailbox.exists : 0;
       if (total === 0) return [];
 
       const BATCH_SIZE = 100;

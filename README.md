@@ -59,6 +59,16 @@ npm test
 npm run build
 ```
 
+## Docker
+
+Build the image:
+
+```bash
+npm run docker:build
+# or directly:
+docker build -t xitstrategies/mcp-email:latest .
+```
+
 ## Provider Setup
 
 **Gmail:** Enable IMAP in Gmail settings, generate an App Password (required if 2FA is on). Use `imap.gmail.com:993` and `smtp.gmail.com:465`.

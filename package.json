@@ -1,6 +1,6 @@
 {
   "name": "mcp-email",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Universal IMAP/SMTP MCP server",
   "type": "module",
   "main": "dist/index.js",
@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "lint": "biome check .",
     "format": "biome format --write .",
-    "docker:build": "docker build -t xitstrategies/mcp-email:latest ."
+    "docker:build": "docker build -t xitstrategies/mcp-email:latest .",
+    "docker:push": "docker push xitstrategies/mcp-email:latest"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.10.2",

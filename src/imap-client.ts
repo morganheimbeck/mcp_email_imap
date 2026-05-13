@@ -63,10 +63,11 @@ export class ImapClient {
         end = start - 1;
 
         const batch: EmailSummary[] = [];
-        for await (const msg of this.client.fetch(
-          range,
-          { uid: true, envelope: true, flags: true },
-        )) {
+        for await (const msg of this.client.fetch(range, {
+          uid: true,
+          envelope: true,
+          flags: true,
+        })) {
           const seen = msg.flags?.has("\\Seen") ?? false;
           if (filter === "unread" && seen) continue;
           if (filter === "read" && !seen) continue;

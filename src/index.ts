@@ -22,13 +22,21 @@ const server = new McpServer({ name: "mcp-email", version: "0.1.0" });
 
 server.tool(
   "list_emails",
-  "List recent or unread emails with sender, subject, and date",
+  "⚠️ Performs a full folder scan — slow and potentially expensive on large inboxes. Prefer search_emails for almost all use cases. Use list_emails only when the user explicitly wants to browse an entire folder with no search criteria. Scans newest-to-oldest in batches of 100 and stops once limit results (default 20) are collected. Use filter (all / unread / read) to narrow by read status. Use order (newest / oldest) to control sort direction (default: newest). Each result includes uid (pass to read_email), from, subject, date (ISO 8601), seen (boolean), and folder. Present as a table or bulleted list.",
   {
-    folder: z.string().optional().describe("Mailbox folder (default: INBOX)"),
+    folder: z.string().optional().describe("Mailbox folder path from get_folders (default: INBOX)"),
     limit: z.number().int().min(1).max(100).optional().describe("Max results (default: 20)"),
+    filter: z
+      .enum(["all", "unread", "read"])
+      .optional()
+      .describe("Read-status filter: all (default), unread, or read"),
+    order: z
+      .enum(["newest", "oldest"])
+      .optional()
+      .describe("Sort direction: newest (default) or oldest"),
   },
-  async ({ folder, limit }) => {
-    const summaries = await handleListEmails(imap, { folder, limit });
+  async ({ folder, limit, filter, order }) => {
+    const summaries = await handleListEmails(imap, { folder, limit, filter, order });
     return { content: [{ type: "text", text: JSON.stringify(summaries, null, 2) }] };
   },
 );

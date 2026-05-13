@@ -46,11 +46,7 @@ export class ImapClient {
     const lock: MailboxLockObject = await this.client.getMailboxLock(folder);
     try {
       const messages: EmailSummary[] = [];
-      for await (const msg of this.client.fetch(
-        { seen: false },
-        { uid: true, envelope: true, flags: true },
-        { uid: true },
-      )) {
+      for await (const msg of this.client.fetch("1:*", { uid: true, envelope: true, flags: true }, { uid: true })) {
         messages.push({
           uid: String(msg.uid),
           messageId: msg.envelope?.messageId ?? "",

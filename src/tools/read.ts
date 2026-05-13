@@ -4,6 +4,8 @@ import type { EmailMessage, EmailSummary } from "../types.js";
 export interface ListEmailsInput {
   folder?: string;
   limit?: number;
+  filter?: "all" | "unread" | "read";
+  order?: "newest" | "oldest";
 }
 
 export interface SearchEmailsInput {
@@ -24,7 +26,12 @@ export async function handleListEmails(
   imap: ImapClient,
   input: ListEmailsInput,
 ): Promise<EmailSummary[]> {
-  return imap.listEmails(input.folder ?? "INBOX", input.limit ?? 20);
+  return imap.listEmails(
+    input.folder ?? "INBOX",
+    input.limit ?? 20,
+    input.filter ?? "all",
+    input.order ?? "newest",
+  );
 }
 
 export async function handleSearchEmails(

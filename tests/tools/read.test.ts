@@ -36,20 +36,24 @@ const mockMessage: EmailMessage = {
 };
 
 describe("list_emails handler", () => {
-  it("returns summaries from ImapClient.listEmails", async () => {
+  it("passes folder, limit, filter, and order to ImapClient.listEmails", async () => {
     const imap = makeImapMock({ listEmails: vi.fn().mockResolvedValue([mockSummary]) });
     const { handleListEmails } = await import("../../src/tools/read.js");
-    const result = await handleListEmails(imap, { folder: "INBOX", limit: 20 });
+    const result = await handleListEmails(imap, {
+      folder: "INBOX",
+      limit: 10,
+      filter: "unread",
+      order: "oldest",
+    });
     expect(result).toHaveLength(1);
-    expect(result[0].uid).toBe("42");
-    expect(imap.listEmails).toHaveBeenCalledWith("INBOX", 20);
+    expect(imap.listEmails).toHaveBeenCalledWith("INBOX", 10, "unread", "oldest");
   });
 
-  it("uses default folder INBOX and limit 20 when not provided", async () => {
+  it("defaults folder to INBOX, limit to 20, filter to all, order to newest", async () => {
     const imap = makeImapMock({ listEmails: vi.fn().mockResolvedValue([]) });
     const { handleListEmails } = await import("../../src/tools/read.js");
     await handleListEmails(imap, {});
-    expect(imap.listEmails).toHaveBeenCalledWith("INBOX", 20);
+    expect(imap.listEmails).toHaveBeenCalledWith("INBOX", 20, "all", "newest");
   });
 });
 

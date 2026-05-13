@@ -42,7 +42,7 @@ claude mcp list
 
 ### Claude Desktop (Cowork)
 
-Add the following to `~/Library/Application Support/Claude/claude_desktop_config.json` (Mac) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+Add the following to `~/Library/Application\ Support/Claude/claude_desktop_config.json` (Mac) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
 
 ```json
 {

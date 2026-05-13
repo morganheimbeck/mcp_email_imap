@@ -41,24 +41,55 @@ export class ImapClient {
     }));
   }
 
-  async listEmails(folder: string, limit: number): Promise<EmailSummary[]> {
+  async listEmails(
+    folder: string,
+    limit: number,
+    filter: "all" | "unread" | "read",
+    order: "newest" | "oldest",
+  ): Promise<EmailSummary[]> {
     await this.connect();
     const lock: MailboxLockObject = await this.client.getMailboxLock(folder);
     try {
-      const messages: EmailSummary[] = [];
-      for await (const msg of this.client.fetch("1:*", { uid: true, envelope: true, flags: true }, { uid: true })) {
-        messages.push({
-          uid: String(msg.uid),
-          messageId: msg.envelope?.messageId ?? "",
-          from: msg.envelope?.from?.[0]?.address ?? "",
-          subject: msg.envelope?.subject ?? "(no subject)",
-          date: msg.envelope?.date?.toISOString() ?? new Date(0).toISOString(),
-          seen: msg.flags?.has("\\Seen") ?? false,
-          folder,
-        });
-        if (messages.length >= limit) break;
+      const total: number = this.client.mailbox?.exists ?? 0;
+      if (total === 0) return [];
+
+      const BATCH_SIZE = 100;
+      const results: EmailSummary[] = [];
+      let end = total;
+
+      while (end > 0 && results.length < limit) {
+        const start = Math.max(1, end - BATCH_SIZE + 1);
+        const range = `${start}:${end}`;
+        end = start - 1;
+
+        for await (const msg of this.client.fetch(
+          range,
+          { uid: true, envelope: true, flags: true },
+        )) {
+          const seen = msg.flags?.has("\\Seen") ?? false;
+          if (filter === "unread" && seen) continue;
+          if (filter === "read" && !seen) continue;
+
+          results.push({
+            uid: String(msg.uid),
+            messageId: msg.envelope?.messageId ?? "",
+            from: msg.envelope?.from?.[0]?.address ?? "",
+            subject: msg.envelope?.subject ?? "(no subject)",
+            date: msg.envelope?.date?.toISOString() ?? new Date(0).toISOString(),
+            seen,
+            folder,
+          });
+
+          if (results.length >= limit) break;
+        }
       }
-      return messages;
+
+      // fetch walks start→end (ascending sequence), so results are oldest-first within each batch.
+      // Reverse to get newest-first overall, then re-reverse if caller wants oldest.
+      results.reverse();
+      if (order === "oldest") results.reverse();
+
+      return results;
     } finally {
       lock.release();
     }

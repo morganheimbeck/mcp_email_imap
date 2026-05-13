@@ -90,3 +90,62 @@ describe("read_email handler", () => {
     await expect(handleReadEmail(imap, { folder: "INBOX", uid: "" })).rejects.toThrow(/uid/i);
   });
 });
+
+describe("ImapClient.listEmails batched scan (via handler)", () => {
+  it("stops after limit results and returns newest-first by default", async () => {
+    const newer: EmailSummary = {
+      uid: "100",
+      messageId: "<newer@example.com>",
+      from: "newer@example.com",
+      subject: "Newer",
+      date: "2026-01-02T00:00:00.000Z",
+      seen: false,
+      folder: "INBOX",
+    };
+    const older: EmailSummary = {
+      uid: "99",
+      messageId: "<older@example.com>",
+      from: "older@example.com",
+      subject: "Older",
+      date: "2026-01-01T00:00:00.000Z",
+      seen: true,
+      folder: "INBOX",
+    };
+    // Mock returns newest first (uid 100 before uid 99)
+    const imap = makeImapMock({
+      listEmails: vi.fn().mockResolvedValue([newer, older]),
+    });
+    const { handleListEmails } = await import("../../src/tools/read.js");
+    const result = await handleListEmails(imap, { limit: 2, filter: "all", order: "newest" });
+    expect(result[0].uid).toBe("100");
+    expect(result[1].uid).toBe("99");
+  });
+
+  it("reverses order when order is oldest", async () => {
+    const newer: EmailSummary = {
+      uid: "100",
+      messageId: "<newer@example.com>",
+      from: "newer@example.com",
+      subject: "Newer",
+      date: "2026-01-02T00:00:00.000Z",
+      seen: false,
+      folder: "INBOX",
+    };
+    const older: EmailSummary = {
+      uid: "99",
+      messageId: "<older@example.com>",
+      from: "older@example.com",
+      subject: "Older",
+      date: "2026-01-01T00:00:00.000Z",
+      seen: true,
+      folder: "INBOX",
+    };
+    const imap = makeImapMock({
+      listEmails: vi.fn().mockResolvedValue([older, newer]),
+    });
+    const { handleListEmails } = await import("../../src/tools/read.js");
+    const result = await handleListEmails(imap, { limit: 2, filter: "all", order: "oldest" });
+    expect(result[0].uid).toBe("99");
+    expect(result[1].uid).toBe("100");
+  });
+});
